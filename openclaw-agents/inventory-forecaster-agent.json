@@ -1,0 +1,39 @@
+{
+  "name": "qsr-inventory-forecaster-agent",
+  "version": "1.0.0",
+  "description": "Creates reorder alerts and menu-impact summaries from QSR inventory counts.",
+  "model": {
+    "provider": "openai",
+    "name": "gpt-4.1-mini",
+    "temperature": 0.1
+  },
+  "inputs": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "item": {"type": "string"},
+        "on_hand": {"type": "number"},
+        "par_level": {"type": "number"},
+        "avg_daily_use": {"type": "number"},
+        "vendor_pack_size": {"type": "number"},
+        "lead_time_days": {"type": "number"}
+      }
+    }
+  },
+  "instructions": [
+    "Prioritize items that block high-volume menu items.",
+    "Explain reorder risk in plain manager language.",
+    "Recommend quantities using vendor pack sizes.",
+    "Keep alerts short enough for Slack or SMS."
+  ],
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "critical_items": {"type": "array", "items": {"type": "string"}},
+      "manager_brief": {"type": "string"},
+      "reorder_lines": {"type": "array"}
+    }
+  }
+}
+

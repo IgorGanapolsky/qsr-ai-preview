@@ -1,0 +1,24 @@
+[
+  {
+    "date": "2026-05-06",
+    "item": "italian bread",
+    "quantity": 18,
+    "estimated_loss": 22.5,
+    "reason": "over-prepped"
+  },
+  {
+    "date": "2026-05-06",
+    "item": "lettuce",
+    "quantity": 3,
+    "estimated_loss": 18,
+    "reason": "quality"
+  },
+  {
+    "date": "2026-05-06",
+    "item": "turkey slices",
+    "quantity": 4,
+    "estimated_loss": 34,
+    "reason": "expired"
+  }
+]
+

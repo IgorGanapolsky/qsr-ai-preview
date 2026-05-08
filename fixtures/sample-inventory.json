@@ -1,0 +1,27 @@
+[
+  {
+    "item": "turkey slices",
+    "on_hand": 8,
+    "par_level": 40,
+    "avg_daily_use": 11,
+    "vendor_pack_size": 10,
+    "lead_time_days": 1
+  },
+  {
+    "item": "italian bread",
+    "on_hand": 55,
+    "par_level": 120,
+    "avg_daily_use": 80,
+    "vendor_pack_size": 60,
+    "lead_time_days": 1
+  },
+  {
+    "item": "chocolate chip cookies",
+    "on_hand": 90,
+    "par_level": 80,
+    "avg_daily_use": 24,
+    "vendor_pack_size": 36,
+    "lead_time_days": 2
+  }
+]
+

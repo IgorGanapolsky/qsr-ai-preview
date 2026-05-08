@@ -1,0 +1,11 @@
+{
+  "store": "Store 104",
+  "shift": "closing",
+  "staffing": "One callout, drive-thru covered by Maya from 6-8.",
+  "inventory": "Low turkey, bread count okay after 7 PM bake, cookies over par.",
+  "equipment": "Toaster 2 slow to heat.",
+  "customer_incidents": "One late pickup complaint, no refund issued.",
+  "cash_register": "Drawer 1 over by $3.12.",
+  "opening_tasks": ["check turkey delivery", "test toaster 2", "prep extra lettuce before lunch"]
+}
+

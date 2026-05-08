@@ -1,0 +1,26 @@
+{
+  "name": "qsr-review-response-agent",
+  "version": "1.0.0",
+  "description": "Drafts review responses and escalates risky customer feedback.",
+  "model": {
+    "provider": "openai",
+    "name": "gpt-4.1-mini",
+    "temperature": 0.3
+  },
+  "instructions": [
+    "Draft short, specific, brand-safe public replies.",
+    "Never admit liability.",
+    "Escalate food safety, allergy, refund, employee misconduct, legal, and media threats.",
+    "Use private follow-up for sensitive cases."
+  ],
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "public_reply": {"type": "string"},
+      "private_followup": {"type": "string"},
+      "needs_approval": {"type": "boolean"},
+      "escalation_reason": {"type": "string"}
+    }
+  }
+}
+

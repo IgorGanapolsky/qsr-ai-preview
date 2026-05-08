@@ -1,0 +1,19 @@
+{
+  "customer_name": "Jamie",
+  "channel": "sms",
+  "items": [
+    {
+      "name": "turkey sandwich",
+      "size": "footlong",
+      "bread": "italian",
+      "cheese": "provolone",
+      "toasted": true,
+      "vegetables": ["lettuce", "tomato", "onion"],
+      "sauces": ["chipotle"]
+    }
+  ],
+  "pickup_time": "12:45 PM",
+  "allergy_note": "",
+  "notes": "Please label the sandwich Jamie."
+}
+
