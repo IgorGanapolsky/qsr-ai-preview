@@ -19,6 +19,7 @@ This preview focuses on those edges. It does not require replacing the POS. The 
 ## Live Offer
 
 - Full sales page: https://igorganapolsky.github.io/qsr-n8n-workflow-vault-site/
+- Visual POS compatibility demo: https://igorganapolsky.github.io/qsr-n8n-workflow-vault-site/pos-compatibility-demo.html
 - Same-day workflow teardown: https://buy.stripe.com/6oU4gz3Ug7Dg6tPfSH3sI1e
 - Setup diagnostic / POS compatibility map: https://buy.stripe.com/eVq28rfCY0aOdWh5e33sI0N
 
