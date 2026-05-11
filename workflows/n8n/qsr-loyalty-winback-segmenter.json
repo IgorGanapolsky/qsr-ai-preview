@@ -1,0 +1,71 @@
+{
+  "name": "QSR Loyalty Winback Segmenter",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "qsr/loyalty-winback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "fb437bd5-057b-4c7b-b729-fb5265a87276",
+      "name": "Loyalty Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-720, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst customers = Array.isArray(body.customers) ? body.customers : [];\nconst now = Date.now();\nconst dayMs = 24 * 60 * 60 * 1000;\nconst segments = customers.map((customer) => {\n  const lastVisit = customer.lastVisit ? new Date(customer.lastVisit).getTime() : 0;\n  const daysSinceVisit = lastVisit ? Math.floor((now - lastVisit) / dayMs) : 999;\n  const visits90d = Number(customer.visits90d ?? 0);\n  const spend90d = Number(customer.spend90d ?? 0);\n  let segment = 'standard';\n  let offer = 'thank_you_next_visit';\n  if (daysSinceVisit >= 45) {\n    segment = 'winback';\n    offer = 'limited_time_return_offer';\n  } else if (visits90d >= 8 || spend90d >= 250) {\n    segment = 'vip';\n    offer = 'exclusive_bonus_item';\n  } else if (daysSinceVisit >= 21) {\n    segment = 'at_risk';\n    offer = 'small_discount_or_bonus_side';\n  }\n  return {\n    customerId: customer.customerId ?? customer.email ?? customer.phone,\n    name: customer.name ?? 'Guest',\n    channel: customer.preferredChannel ?? 'email',\n    daysSinceVisit,\n    visits90d,\n    spend90d,\n    segment,\n    recommendedOffer: offer,\n    messageStatus: 'draft_for_human_approval'\n  };\n});\nreturn [{\n  json: {\n    workflow: 'qsr-loyalty-winback-segmenter',\n    storeId: body.storeId ?? 'unknown',\n    segmentCounts: segments.reduce((acc, item) => {\n      acc[item.segment] = (acc[item.segment] ?? 0) + 1;\n      return acc;\n    }, {}),\n    segments\n  }\n}];"
+      },
+      "id": "e02d5d60-5694-41b4-9098-d5a063312373",
+      "name": "Segment Customers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "c321f6dd-3c6b-421c-91fd-25b93e8a8122",
+      "name": "Return Segments",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-240, 0]
+    }
+  ],
+  "connections": {
+    "Loyalty Webhook": {
+      "main": [
+        [
+          {
+            "node": "Segment Customers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Segment Customers": {
+      "main": [
+        [
+          {
+            "node": "Return Segments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "version": "0.1.0"
+  }
+}
+

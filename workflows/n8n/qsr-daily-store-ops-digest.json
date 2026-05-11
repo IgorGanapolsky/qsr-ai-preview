@@ -1,0 +1,70 @@
+{
+  "name": "QSR Daily Store Ops Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "qsr/daily-ops-digest",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "491f1d36-f72f-49e2-9bc6-14e0a6a49de4",
+      "name": "Daily Ops Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-720, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst sales = Number(body.sales ?? 0);\nconst labor = Number(body.labor ?? 0);\nconst waste = Number(body.waste ?? 0);\nconst incidents = Array.isArray(body.incidents) ? body.incidents : [];\nconst laborPct = sales > 0 ? Math.round((labor / sales) * 1000) / 10 : null;\nconst wastePct = sales > 0 ? Math.round((waste / sales) * 1000) / 10 : null;\nconst flags = [];\nif (laborPct !== null && laborPct > 30) flags.push('labor_above_target');\nif (wastePct !== null && wastePct > 3) flags.push('waste_above_target');\nif (incidents.length) flags.push('incident_review_needed');\nreturn [{\n  json: {\n    workflow: 'qsr-daily-store-ops-digest',\n    storeId: body.storeId ?? 'unknown',\n    businessDate: body.businessDate ?? new Date().toISOString().slice(0, 10),\n    metrics: {\n      sales,\n      labor,\n      laborPct,\n      waste,\n      wastePct,\n      tickets: Number(body.tickets ?? 0),\n      avgTicket: Number(body.tickets ?? 0) ? Math.round((sales / Number(body.tickets)) * 100) / 100 : null\n    },\n    incidents,\n    flags,\n    managerDigest: flags.length ? 'Review flagged labor, waste, or incident items before opening tomorrow.' : 'No major exceptions detected from submitted metrics.',\n    nextStep: flags.length ? 'send_to_manager_and_district_queue' : 'archive_daily_digest'\n  }\n}];"
+      },
+      "id": "cf132831-613e-4327-9a48-6d74291ef6b6",
+      "name": "Build Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "fcb66a6b-252d-4a9d-ad4d-b993618d08ed",
+      "name": "Return Digest",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-240, 0]
+    }
+  ],
+  "connections": {
+    "Daily Ops Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Digest": {
+      "main": [
+        [
+          {
+            "node": "Return Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "version": "0.1.0"
+  }
+}

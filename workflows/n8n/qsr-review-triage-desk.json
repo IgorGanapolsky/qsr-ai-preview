@@ -1,0 +1,71 @@
+{
+  "name": "QSR Review Triage Desk",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "qsr/review-triage",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1998c72a-43d9-4c74-a880-73f818f61dc7",
+      "name": "Review Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-720, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst text = String(body.text ?? body.review ?? '').toLowerCase();\nconst rating = Number(body.rating ?? 0);\nconst severeTerms = ['sick', 'food poisoning', 'allergy', 'unsafe', 'injury', 'raw'];\nconst serviceTerms = ['rude', 'wait', 'late', 'missing', 'cold'];\nconst severe = rating <= 2 || severeTerms.some((term) => text.includes(term));\nconst service = serviceTerms.some((term) => text.includes(term));\nlet priority = 'normal';\nlet owner = 'store_manager';\nlet posture = 'thank_and_invite_back';\nif (severe) {\n  priority = 'urgent';\n  owner = 'district_manager';\n  posture = 'apologize_take_offline_document_incident';\n} else if (service || rating <= 3) {\n  priority = 'same_day';\n  owner = 'shift_lead';\n  posture = 'acknowledge_specific_issue_offer_resolution';\n}\nreturn [{\n  json: {\n    workflow: 'qsr-review-triage-desk',\n    source: body.source ?? 'unknown',\n    storeId: body.storeId ?? 'unknown',\n    rating,\n    priority,\n    owner,\n    responsePosture: posture,\n    responseStatus: 'draft_for_human_approval',\n    complianceNote: severe ? 'Document internally before public response.' : 'No safety trigger detected by keyword rules.'\n  }\n}];"
+      },
+      "id": "3b10ccff-97a7-489b-9c5e-8f31681fb86a",
+      "name": "Classify Review",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "01f6525f-e8e7-4072-bf1f-b1a0161a8ed1",
+      "name": "Return Triage",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-240, 0]
+    }
+  ],
+  "connections": {
+    "Review Webhook": {
+      "main": [
+        [
+          {
+            "node": "Classify Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Review": {
+      "main": [
+        [
+          {
+            "node": "Return Triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "version": "0.1.0"
+  }
+}
+

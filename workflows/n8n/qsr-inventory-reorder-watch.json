@@ -1,0 +1,71 @@
+{
+  "name": "QSR Inventory Reorder Watch",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "qsr/inventory-reorder",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "3905c269-fb18-4bce-9e18-0f2246217da0",
+      "name": "Inventory Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-720, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst items = Array.isArray(body.items) ? body.items : [];\nconst reorderItems = items.map((item) => {\n  const onHand = Number(item.onHand ?? 0);\n  const par = Number(item.par ?? item.targetStock ?? 0);\n  const minimum = Number(item.minimum ?? Math.ceil(par * 0.35));\n  const caseSize = Number(item.caseSize ?? 1);\n  const neededUnits = Math.max(par - onHand, 0);\n  const cases = caseSize > 0 ? Math.ceil(neededUnits / caseSize) : neededUnits;\n  return {\n    sku: item.sku ?? item.name,\n    name: item.name ?? item.sku,\n    onHand,\n    minimum,\n    par,\n    caseSize,\n    vendor: item.vendor ?? 'unassigned',\n    reorder: onHand <= minimum,\n    suggestedUnits: neededUnits,\n    suggestedCases: cases\n  };\n}).filter((item) => item.reorder);\nreturn [{\n  json: {\n    workflow: 'qsr-inventory-reorder-watch',\n    storeId: body.storeId ?? 'unknown',\n    checkedAt: new Date().toISOString(),\n    reorderCount: reorderItems.length,\n    reorderItems,\n    nextStep: reorderItems.length ? 'send_supplier_or_manager_approval' : 'no_reorder_needed'\n  }\n}];"
+      },
+      "id": "bcda3e31-0a3f-42aa-9a0e-6013a5f6e1cd",
+      "name": "Build Reorder List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "7689d8f9-56db-4d79-b50d-313bf57c56f6",
+      "name": "Return Reorder Plan",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-240, 0]
+    }
+  ],
+  "connections": {
+    "Inventory Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Reorder List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reorder List": {
+      "main": [
+        [
+          {
+            "node": "Return Reorder Plan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "version": "0.1.0"
+  }
+}
+

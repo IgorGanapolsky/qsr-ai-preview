@@ -1,0 +1,82 @@
+{
+  "name": "QSR Order Intake Normalizer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "qsr/order-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "3b6a4f3e-0ea0-44a5-9446-08bd5b86b1f7",
+      "name": "Order Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-720, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst items = Array.isArray(body.items) ? body.items : [];\nconst missing = [];\nfor (const field of ['storeId', 'customerName', 'items']) {\n  if (!body[field] || (field === 'items' && !items.length)) missing.push(field);\n}\nconst normalizedItems = items.map((item) => ({\n  sku: item.sku ?? item.id ?? 'unknown',\n  name: item.name ?? item.title ?? 'Unnamed item',\n  quantity: Number(item.quantity ?? item.qty ?? 1),\n  modifiers: item.modifiers ?? [],\n  notes: item.notes ?? ''\n}));\nreturn [{\n  json: {\n    workflow: 'qsr-order-intake-normalizer',\n    status: missing.length ? 'needs_review' : 'ready_for_pos',\n    missing,\n    order: {\n      storeId: body.storeId ?? 'unknown',\n      channel: body.channel ?? 'webhook',\n      customerName: body.customerName ?? body.name ?? 'Guest',\n      customerPhone: body.customerPhone ?? body.phone ?? null,\n      requestedTime: body.requestedTime ?? 'asap',\n      items: normalizedItems,\n      orderNotes: body.notes ?? ''\n    },\n    nextStep: missing.length ? 'route_to_manager_review' : 'send_to_pos_or_kitchen_display'\n  }\n}];"
+      },
+      "id": "45397690-69db-48a9-99b0-c0644bdba2db",
+      "name": "Normalize Order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "4cbbe2ee-efec-4b63-99a7-72b154d6a79f",
+      "name": "Return Handoff",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [-240, 0]
+    }
+  ],
+  "connections": {
+    "Order Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Order": {
+      "main": [
+        [
+          {
+            "node": "Return Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {
+    "version": "0.1.0",
+    "samplePayload": {
+      "storeId": "store-014",
+      "customerName": "Sam Rivera",
+      "items": [
+        {
+          "sku": "combo-2",
+          "name": "Chicken bowl combo",
+          "quantity": 2
+        }
+      ]
+    }
+  }
+}
+
