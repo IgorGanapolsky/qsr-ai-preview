@@ -1,70 +1,80 @@
 # QSR AI Ops Preview
 
-Practical AI workflow preview for quick-service restaurants, POS builders, and automation consultants.
+**For QSR operators, POS builders, and automation consultants who want AI workflows that sit *beside* the POS — not replace it.**
 
-This repo is a buyer-readable demo, not a generic AI toy. It shows how lightweight n8n workflows and small agent specs can sit around an existing POS to recover missed orders, normalize messy intake, flag inventory risks, triage reviews, and produce daily manager summaries.
+This repo is the readable preview. The buyable version is:
 
-## Fast Read
+- **[$29 — QSR AI Ops Template Pack →](https://iganapolsky.gumroad.com/l/qsr-ai-ops-pack)** — the 5 n8n workflows, OpenClaw agent specs, test fixtures, and POS compatibility map in this repo, packaged for import.
+- **[$499 — 48-Hour Workflow Diagnostic →](https://iganapolsky.gumroad.com/l/qsr-ai-automation-diagnostic)** — you send your POS export + one workflow you want to automate; I send back a written plan with integration path, approval gate, and the smallest paid pilot worth building.
 
-If you run or build restaurant/POS software, the first question is not "can AI replace the POS?"
+[Full sales page](https://igorganapolsky.github.io/qsr-n8n-workflow-vault-site/) · [POS compatibility demo](https://igorganapolsky.github.io/qsr-n8n-workflow-vault-site/pos-compatibility-demo.html)
+
+---
+
+## The useful question
+
+Not "can AI replace the POS?" — that question is unsellable inside an operating restaurant.
 
 The useful question is:
 
 ```text
-Where are orders, reviews, inventory counts, manager notes, and customer follow-ups leaking money before a human sees them?
+Where are orders, reviews, inventory counts, manager notes, and customer
+follow-ups leaking money before a human sees them?
 ```
 
-This preview focuses on those edges. It does not require replacing the POS. The first implementation can run beside the POS through exports, webhooks, email/SMS, Google Sheets, Slack, or API endpoints.
+The workflows in this repo target those edges. They run *beside* the POS through exports, webhooks, email/SMS, Google Sheets, Slack, or API endpoints. No POS replacement required.
 
-## Live Offer
+## What's in the repo (and the $29 pack)
 
-- Full sales page: https://igorganapolsky.github.io/qsr-n8n-workflow-vault-site/
-- Visual POS compatibility demo: https://igorganapolsky.github.io/qsr-n8n-workflow-vault-site/pos-compatibility-demo.html
-- Same-day workflow teardown: https://buy.stripe.com/6oU4gz3Ug7Dg6tPfSH3sI1e
-- Setup diagnostic / POS compatibility map: https://buy.stripe.com/eVq28rfCY0aOdWh5e33sI0N
+Five importable n8n workflows, each with a real outcome:
 
-The setup diagnostic is the right next step for POS builders or restaurant operators who want to know which workflow should plug in first.
+| Workflow | What it does | Who feels the pain |
+|---|---|---|
+| `qsr-order-intake-normalizer.json` | Turns messy multi-channel orders (DM, SMS, online forms) into structured fields for review and routing | Catering lead handlers, ghost-kitchen ops |
+| `qsr-inventory-reorder-watch.json` | Flags low-stock items and drafts reorder alerts before menu availability breaks | Single-store owner-operators, multi-unit GMs |
+| `qsr-review-triage-desk.json` | Drafts review responses; escalates food-safety, allergy, refund, and legal-risk cases to humans | Brand managers, district managers |
+| `qsr-daily-store-ops-digest.json` | Summarizes shift notes, customer issues, equipment notes, and opening tasks | Multi-unit operators reading 6 store reports each morning |
+| `qsr-loyalty-winback-segmenter.json` | Segments lapsed customers for follow-up without making the POS the campaign brain | Operators with a POS that "has loyalty" but no real winback |
 
-## What This Demo Includes
+Plus:
+- OpenClaw-ready agent specs in `openclaw-agents/` — for builders running local agents with approval gates
+- Test fixtures (`fixtures/`) — sample orders, inventory counts, waste logs, reviews, shift notes you can run through each workflow on day one
+- POS compatibility map (`docs/pos-compatibility-map.md`) — Toast, Square, Clover, and Subway-style POS surfaces ranked by what's automatable first
+- 2-minute walkthrough script (`docs/demo-walkthrough.md`) — for consultants selling this to operators
 
-- Importable n8n workflow previews in `workflows/n8n/`
-- OpenClaw-ready agent specs in `openclaw-agents/`
-- Test fixtures for sample orders, inventory counts, waste logs, reviews, and shift notes in `fixtures/`
-- A POS compatibility map in `docs/pos-compatibility-map.md`
-- A 2-minute walkthrough script in `docs/demo-walkthrough.md`
-
-## Included Workflow Previews
-
-1. `qsr-order-intake-normalizer.json`
-   Turns messy order/channel intake into structured fields for review, routing, and manager handoff.
-
-2. `qsr-inventory-reorder-watch.json`
-   Flags low-stock items and creates reorder alerts before menu availability breaks.
-
-3. `qsr-review-triage-desk.json`
-   Drafts review responses and escalates food safety, refund, allergy, and legal-risk cases.
-
-4. `qsr-daily-store-ops-digest.json`
-   Summarizes shift notes, customer issues, equipment notes, and opening tasks for managers.
-
-5. `qsr-loyalty-winback-segmenter.json`
-   Segments customers for follow-up and winback campaigns without making the POS the campaign brain.
-
-## Integration Pattern
-
-The safest first version is edge automation:
+## The safe integration pattern
 
 ```text
 POS / ordering channel / review site / inbox
-  -> export, webhook, API, email, SMS, or sheet row
-  -> n8n workflow
-  -> AI triage or summary
-  -> manager approval, Slack/SMS/email, CRM, or POS note
+  → export, webhook, API, email, SMS, or sheet row
+  → n8n workflow
+  → AI triage or summary
+  → manager approval
+  → Slack / SMS / email / CRM / POS note
 ```
 
-Start with intake, summaries, alerts, and human handoff. Do not start by letting AI autonomously change orders, refunds, tax, allergy handling, or menu availability.
+Start with intake, summaries, alerts, and human handoff.
 
-## Good First Use Cases
+**Do not** start by letting AI autonomously change orders, refunds, tax, allergy handling, or menu availability. That's how brands get sued.
+
+## FAQ
+
+**What exactly do I get for $29?**
+A downloadable ZIP with the 5 n8n workflow JSONs, the OpenClaw agent specs, the test fixtures, the POS compatibility map, and the demo walkthrough script — same content as in this repo, packaged for immediate import. License: use in client work, do not resell as-is.
+
+**What do I get for $499?**
+A 48-hour async written diagnostic. You send: API/webhook docs from your POS, a sample order export, a sample customer export, your review/inbox source, your current manager reporting flow, and where staff already approve actions. I send back: the first low-risk workflow to plug in, the integration path, the human approval point, and the smallest paid pilot worth building. Async — no calls required.
+
+**Refund policy?**
+$29 pack: 14-day refund if the workflows don't import into your n8n instance. $499 diagnostic: full refund if you don't receive a written deliverable within 72 hours of sending the inputs.
+
+**Is this affiliated with Subway / Toast / Square / n8n / OpenClaw?**
+No. See disclaimers below.
+
+**Can I just clone the repo and skip the $29?**
+Yes — this preview is public on purpose. The $29 pack saves you the assembly time and includes the demo walkthrough script. The $499 diagnostic is what most buyers actually need: someone to look at *their* POS and tell them what to automate first.
+
+## Good first use cases
 
 - Missed catering lead follow-up
 - DM/SMS order clarification
@@ -73,22 +83,11 @@ Start with intake, summaries, alerts, and human handoff. Do not start by letting
 - Review response triage
 - Loyalty/winback segmentation
 
-## What I Need To Map A POS
+## Next step
 
-For a POS compatibility pass, send any of these:
-
-- API docs or webhook docs
-- sample order export
-- sample customer export
-- review/inbox source
-- current manager reporting flow
-- where staff already approve actions
-
-I will map the first low-risk workflow to plug in, the integration path, the human approval point, and the smallest paid pilot worth building.
-
-## Buyer Promise
-
-Recover missed follow-ups and reduce manager busywork without replacing the POS or retraining the whole store.
+- **Operator / GM:** → [Book the 48-hour diagnostic ($499)](https://iganapolsky.gumroad.com/l/qsr-ai-automation-diagnostic)
+- **POS builder / consultant:** → [Get the template pack ($29)](https://iganapolsky.gumroad.com/l/qsr-ai-ops-pack) and resell setup work to your restaurant clients
+- **Just browsing:** clone the repo, import a workflow into n8n, and run a fixture through it
 
 ## Disclaimers
 
